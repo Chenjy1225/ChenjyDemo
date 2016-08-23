@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<title></title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<meta name="chenjy" content="https://github.com/Chenjy1225" />
+		<link rel="stylesheet" href="css/fontawesome/css/font-awesome.css" />
+		<link rel="stylesheet" href="css/icon.css" />
+		<style>
+			body {
+				font-family: Monospace;
+				margin: 0px;
+				overflow: hidden;
+				background-color: #000000;
+			}
+			
+			#objfile,
+			#objName {
+				position: absolute;
+				top: 20px;
+				padding: 5px;
+			}
+			
+			#objfile {
+				left: 20px;
+				width: 140px;
+			}
+			
+			#objName {
+				left: 200px;
+				width: 80px;
+			}
+			
+			#text_close {
+				position: absolute;
+				top: 24px;
+				left: 176px;
+				width: 20px;
+				line-height: 20px;
+			}
+			
+			.icono-cross,
+			.icono-check {
+				position: absolute;
+				top: 20px;
+				color: #44daad;
+				cursor: pointer;
+			}
+			
+			.icono-cross {
+				left: 300px;
+			}
+			
+			.icono-check {
+				left: 340px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<input type="text" id="objfile" style="display: none;" />
+		<input type="text" id="objName" style="display: none;" />
+		<i class="icono-cross" id="cross" style="display: none;"></i>
+		<i class="icono-check" id="check" style="display: none;"></i>
+		<script type="text/javascript" src="js/three.min.js"></script>
+		<script type="text/javascript" src="js/DDSLoader.js"></script>
+		<script type="text/javascript" src="js/OBJLoader.js"></script>
+		<script type="text/javascript" src="js/OBJExporter.js"></script>
+		<script type="text/javascript" src="js/STLExporter.js"></script>
+		<script type="text/javascript" src="js/ThreeBSP.js"></script>
+		<script type="text/javascript" src="js/dat.gui.min.js"></script>
+		<script type="text/javascript" src="js/TrackballControls.js"></script>
+		<script type="text/javascript" src="js/FontLoader.js"></script>
+		<script type="text/javascript" src="js/cjy_info.js"></script>
+
+		<script>
+			var camera, scene, renderer;
+			var mesh, eraser, groundx_y, groundx_z, groundy_z, linex, liney, linez, INTERSECTED;
+			var as = false;
+			var ct = false;
+
+			var path, objName;
+			var raycaster = new THREE.Raycaster();
+
+			var mouse = new THREE.Vector2();
+
+			var contain = new THREE.Object3D();
+			var obj = new THREE.Object3D();
+
+			var windowHalfX = window.innerWidth / 2;
+			var windowHalfY = window.innerHeight / 2;
+
+			var array = [];
+
+			var helpPoint = new THREE.Vector3();
+
+			var v = [],
+				pts;
+
+			var pickcolor = 0x44abda;
+
+			var size = 5;
+
+			var erGeometry = new THREE.CubeGeometry(20, 20, 20);
+			var erMaterial = new THREE.MeshBasicMaterial({
+				color: 0xc5bdad
+			});
+			var camera_control;
+
+			function init() {
+				var container = document.createElement('div');
+				document.body.appendChild(container);
+
+				scene = new THREE.Scene();
+
+				camera = new THREE.PerspectiveCamera(95, window.innerWidth / window.innerHeight, 1, 100000);
+				camera.position.set(0, 0, 500);
+				camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+				camera_control = new THREE.TrackballControls(camera);
+
+				var ambient = new THREE.AmbientLight(0x606060);
+				scene.add(ambient);
+
+				var directionalLight = new THREE.DirectionalLight(0xffeedd);
+				directionalLight.position.set(0, 0, 1);
+				scene.add(directionalLight);
+
+				// x-y ground
+				var gGeomrtey = new THREE.CubeGeometry(10000, 10000, 10);
+				var gMaterial = new THREE.MeshBasicMaterial({
+					opacity: 0,
+					transparent: true
+				});
+				groundx_y = new THREE.Mesh(gGeomrtey, gMaterial);
+				groundx_y.position.set(0, 0, 0);
+				array.push(groundx_y);
+				contain.add(groundx_y);
+
+				// x-z ground
+				var gGeomrtey = new THREE.CubeGeometry(10000, 10, 10000);
+				groundx_z = new THREE.Mesh(gGeomrtey, gMaterial);
+				groundx_z.position.set(0, 0, 0);
+				contain.add(groundx_z);
+
+				// y-z ground
+				var gGeomrtey = new THREE.CubeGeometry(10, 10000, 10000);
+				groundy_z = new THREE.Mesh(gGeomrtey, gMaterial);
+				groundy_z.position.set(0, 0, 0);
+				contain.add(groundy_z);
+
+				//Z-gird
+
+				var size = 500,
+					step = 50;
+
+				var geometry = new THREE.Geometry();
+
+				for(var i = -size; i <= size; i += step) {
+
+					geometry.vertices.push(new THREE.Vector3(-size, i, 0));
+					geometry.vertices.push(new THREE.Vector3(size, i, 0));
+
+					geometry.vertices.push(new THREE.Vector3(i, -size, 0));
+					geometry.vertices.push(new THREE.Vector3(i, size, 0));
+
+				}
+
+				var material = new THREE.LineBasicMaterial({
+					color: 0xdad5cb,
+					opacity: 0.2
+				});
+
+				linez = new THREE.LineSegments(geometry, material);
+				contain.add(linez);
+
+				//X-gird
+
+				var geometry = new THREE.Geometry();
+
+				for(var i = -size; i <= size; i += step) {
+
+					geometry.vertices.push(new THREE.Vector3(0, i, -size));
+					geometry.vertices.push(new THREE.Vector3(0, i, size));
+
+					geometry.vertices.push(new THREE.Vector3(0, -size, i));
+					geometry.vertices.push(new THREE.Vector3(0, size, i));
+
+				}
+
+				var material = new THREE.LineBasicMaterial({
+					color: 0xdad5cb,
+					opacity: 0.2
+				});
+
+				linex = new THREE.LineSegments(geometry, material);
+
+				contain.add(linex);
+
+				//Y-gird
+
+				var geometry = new THREE.Geometry();
+
+				for(var i = -size; i <= size; i += step) {
+
+					geometry.vertices.push(new THREE.Vector3(i, 0, -size));
+					geometry.vertices.push(new THREE.Vector3(i, 0, size));
+
+					geometry.vertices.push(new THREE.Vector3(-size, 0, i));
+					geometry.vertices.push(new THREE.Vector3(size, 0, i));
+
+				}
+
+				var material = new THREE.LineBasicMaterial({
+					color: 0xdad5cb,
+					opacity: 0.8
+				});
+
+				liney = new THREE.LineSegments(geometry, material);
+				contain.add(liney);
+
+				var loader = new THREE.FontLoader();
+
+				loader.load('css/font/helvetiker_regular.typeface.js', function(font) {
+
+					var textMaterial = new THREE.MultiMaterial([
+						new THREE.MeshPhongMaterial({
+							color: 0x7b7b7b,
+							shading: THREE.FlatShading
+						}),
+						new THREE.MeshPhongMaterial({
+							color: 0xededed,
+							shading: THREE.SmoothShading
+						})
+					]);
+
+					var textGeometry = new THREE.TextGeometry("X-Y", {
+
+						font: font,
+
+						size: 35,
+						height: 2,
+						curveSegments: 30,
+
+						bevelThickness: 2,
+						bevelSize: 1,
+						bevelEnabled: true
+
+					});
+
+					var text_meshx_y = new THREE.Mesh(textGeometry, textMaterial);
+
+					text_meshx_y.position.set(size - 90, size - 40, 0);
+					linez.add(text_meshx_y)
+
+					var textGeometry = new THREE.TextGeometry("Y-Z", {
+
+						font: font,
+
+						size: 35,
+						height: 2,
+						curveSegments: 30,
+
+						bevelThickness: 2,
+						bevelSize: 1,
+						bevelEnabled: true
+
+					});
+
+					var text_meshy_z = new THREE.Mesh(textGeometry, textMaterial);
+
+					text_meshy_z.position.set(0, size - 40, size - 10);
+					text_meshy_z.rotation.y = Math.PI / 2;
+					linex.add(text_meshy_z)
+
+					var textGeometry = new THREE.TextGeometry("Z-X", {
+
+						font: font,
+
+						size: 35,
+						height: 2,
+						curveSegments: 30,
+
+						bevelThickness: 2,
+						bevelSize: 1,
+						bevelEnabled: true
+
+					});
+
+					var text_meshz_x = new THREE.Mesh(textGeometry, textMaterial);
+
+					text_meshz_x.position.set(size - 10, 0, size - 40);
+					text_meshz_x.rotation.x = Math.PI / 2;
+
+					text_meshz_x.rotation.y = Math.PI;
+					liney.add(text_meshz_x)
+
+				});
+
+				renderer = new THREE.WebGLRenderer({
+					antialias: true
+				});
+				renderer.setPixelRatio(window.devicePixelRatio);
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				renderer.setClearColor(0xf0f0f0);
+
+				container.appendChild(renderer.domElement);
+
+				document.addEventListener('mousemove', onDocumentMouseMove, false);
+
+				window.addEventListener('resize', onWindowResize, false);
+
+				scene.add(contain);
+
+			}
+
+			function onDocumentMouseDownLine(event) {
+
+				event.preventDefault();
+				v = [];
+				pts = [];
+
+				document.addEventListener('mousemove', onDocumentMouseMoveLine, false);
+			}
+
+			function onDocumentMouseMoveLine(event) {
+				event.preventDefault();
+
+				var temp = v[v.length - 1];
+
+				if(temp) {
+					if(temp.x == helpPoint.x && temp.y == helpPoint.y && temp.z == helpPoint.z) {
+						return;
+					}
+				}
+				v.push(new THREE.Vector3(helpPoint.x, helpPoint.y, helpPoint.z));
+			}
+
+			function onDocumentMouseUpLine(event) {
+				event.preventDefault();
+				document.removeEventListener('mousemove', onDocumentMouseMoveLine, false);
+				scene.add(obj);
+				v = [];
+				obj.add(mesh);
+			}
+
+			function onDocumentMouseDownEraser(event) {
+				event.preventDefault();
+				Eraser();
+
+			}
+
+			function onDocumentMouseUpEraser(event) {
+				if(mesh !== undefined) {
+					eraser = new THREE.Mesh(erGeometry, erMaterial);
+					eraser.position.set(0, 0, 0);
+					scene.add(eraser);
+				}
+			}
+
+			function onWindowResize() {
+				event.preventDefault();
+
+				windowHalfX = window.innerWidth / 2;
+				windowHalfY = window.innerHeight / 2;
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize(window.innerWidth, window.innerHeight);
+
+			}
+
+			function onDocumentMouseMove(event) {
+				event.preventDefault();
+				if(as) {
+					switch(controls.sketchpad_target) {
+						case "x-y":
+							eraser.position.x = (event.clientX - windowHalfX) * 2;
+							eraser.position.y = -(event.clientY - windowHalfY) * 2;
+							eraser.position.z = controls.sketchpad_x_y;;
+							break;
+						case "x-z":
+							eraser.position.x = (event.clientX - windowHalfX) * 2;
+							eraser.position.y = controls.sketchpad_x_z;;
+							eraser.position.z = (event.clientY - windowHalfY) * 2;
+							break;
+						case "y-z":
+							eraser.position.x = controls.sketchpad_y_z;;
+							eraser.position.y = -(event.clientY - windowHalfY) * 2;
+							eraser.position.z = -(event.clientX - windowHalfX) * 2;
+							break;
+					}
+
+				}
+
+				mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+				mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+			}
+
+			function drawLine(v, size, Linecolor) {
+
+				var curve = new THREE.CatmullRomCurve3(v);
+
+				var extrudeSettings = {
+					curveSegments: 12,
+					steps: 200,
+					amount: 2,
+					extrudePath: curve
+				};
+				var pts = [];
+				pts.push(new THREE.Vector2(size, size));
+				pts.push(new THREE.Vector2(size, -size));
+				pts.push(new THREE.Vector2(-size, -size));
+				pts.push(new THREE.Vector2(-size, size));
+
+				var shape = new THREE.Shape(pts);
+
+				var geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+
+				var material = new THREE.MeshBasicMaterial({
+					color: Linecolor
+				});
+
+				mesh = new THREE.Mesh(geometry, material);
+
+				scene.add(mesh);
+
+			}
+
+			function fake_click(obj) {
+				var ev = document.createEvent("MouseEvents");
+				ev.initMouseEvent(
+					"click", true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null
+				);
+				obj.dispatchEvent(ev);
+			}
+
+			function export_raw(name, data) {
+				var urlObject = window.URL || window.webkitURL || window;
+				var export_blob = new Blob([data]);
+				var save_link = document.createElementNS("http://www.w3.org/1999/xhtml", "a")
+				save_link.href = urlObject.createObjectURL(export_blob);
+				save_link.download = name;
+				fake_click(save_link);
+			}
+
+			function exportToObj() {
+				var exporter = new THREE.OBJExporter();
+				scene.remove(contain);
+				var result = exporter.parse(scene);
+				export_raw("obj.obj", result);
+				scene.add(contain);
+			}
+
+			function exportToStl() {
+				var exporter = new THREE.STLExporter();
+				scene.remove(contain);
+				var result = exporter.parse(scene);
+				export_raw("stl.stl", result);
+				scene.add(contain);
+			}
+
+			function Eraser() {
+
+				if(mesh !== undefined) {
+
+					var BSP2 = new ThreeBSP(eraser);
+
+					var BSP1 = new ThreeBSP(mesh);
+
+					var BSPResult = BSP1.subtract(BSP2);
+
+					scene.remove(eraser);
+					scene.remove(mesh);
+					obj.remove(mesh);
+
+					mesh = BSPResult.toMesh();
+					obj.add(mesh);
+				}
+			}
+			//img/obj/  Obj.obj
+			function loadOBJ(path, objName) {
+				var onProgress = function(xhr) {
+					if(xhr.lengthComputable) {
+						var percentComplete = xhr.loaded / xhr.total * 100;
+						console.log(Math.round(percentComplete, 2) + '% downloaded');
+					}
+				};
+
+				var onError = function(xhr) {};
+
+				THREE.Loader.Handlers.add(/\.dds$/i, new THREE.DDSLoader());
+
+				var objLoader = new THREE.OBJLoader();
+				objLoader.setPath(path);
+				objLoader.load(objName, function(object) {
+
+					scene.add(object);
+
+				}, onProgress, onError);
+
+			}
+
+			var controls = new function() {
+				this.pencil = false;
+				this.pencil_size = 5;
+				this.sketchpad_target = "x-y"
+				this.pencil_color = 0x44abda;
+				this.eraser = false;
+				this.eraser_size = 20;
+				this.eraser_type = "cube";
+				this.camera_control = false;
+				this.camera_position = "x-y"
+				this.sketchpad_x_y = 0;
+				this.sketchpad_x_z = 0;
+				this.sketchpad_y_z = 0;
+
+				this.redrawLine = function() {
+					if(controls.pencil) {
+						document.addEventListener('mousedown', onDocumentMouseDownLine, false);
+						document.addEventListener('mouseup', onDocumentMouseUpLine, false);
+					} else {
+						document.removeEventListener('mousedown', onDocumentMouseDownLine, false);
+						document.removeEventListener('mouseup', onDocumentMouseUpLine, false);
+					}
+				}
+
+				this.redraw = function() {
+					size = controls.pencil_size;
+					pickcolor = controls.pencil_color;
+
+					switch(controls.eraser_type) {
+						case "cube":
+							erGeometry = new THREE.CubeGeometry(controls.eraser_size, controls.eraser_size, controls.eraser_size);
+							break;
+						case "sphere":
+							erGeometry = new THREE.SphereGeometry(controls.eraser_size, controls.eraser_size, controls.eraser_size);
+							break;
+					}
+
+				}
+
+				this.redrawtarget = function() {
+					switch(controls.sketchpad_target) {
+						case "x-y":
+							array = [];
+							array.push(groundx_y);
+							break;
+						case "x-z":
+							array = [];
+							array.push(groundx_z);
+							break;
+						case "y-z":
+							array = [];
+							array.push(groundy_z);
+							break;
+					}
+
+				}
+
+				this.reeraser = function() {
+					if(controls.eraser) {
+						eraser = new THREE.Mesh(erGeometry, erMaterial);
+						switch(controls.sketchpad_target) {
+							case "x-y":
+								eraser.position.z = controls.sketchpad_x_y;
+								break;
+							case "x-z":
+								eraser.position.y = controls.sketchpad_x_z;
+								break;
+							case "y-z":
+								eraser.position.x = controls.sketchpad_y_z;
+								break;
+						}
+						as = true;
+
+						scene.add(eraser);
+						document.addEventListener('mousedown', onDocumentMouseDownEraser, false);
+						document.addEventListener('mouseup', onDocumentMouseUpEraser, false);
+
+					} else {
+						as = false;
+						scene.remove(eraser);
+						document.removeEventListener('mousedown', onDocumentMouseDownEraser, false);
+						document.removeEventListener('mouseup', onDocumentMouseUpEraser, false);
+					}
+				}
+
+				this.exportOBJ = function() {
+					exportToObj();
+				}
+				this.exportSTL = function() {
+					exportToStl();
+				}
+				this.redrawCamera = function() {
+					if(controls.camera_control) {
+						ct = true;
+					} else {
+						ct = false;
+					}
+				}
+
+				this.clearScene = function() {
+					var length = obj.children.length;
+					for(var i = length; i >= 0; i--) {
+						obj.remove(obj.children[i]);
+					}
+				}
+
+				this.clearLastLine = function() {
+					var length = obj.children.length;
+					obj.remove(obj.children[length - 1]);
+				}
+
+				this.redrawcposition = function() {
+					switch(controls.camera_position) {
+						case "x-y":
+							camera.position.set(0, 0, 500);
+							camera.lookAt(new THREE.Vector3(0, 0, 0));
+							camera.updateProjectionMatrix();
+							break;
+						case "x-z":
+							camera.position.set(0, 500, 0);
+							camera.lookAt(new THREE.Vector3(0, 0, 0));
+							camera.updateProjectionMatrix();
+							break;
+						case "y-z":
+							camera.position.set(500, 0, 0);
+							camera.lookAt(new THREE.Vector3(0, 0, 0));
+							camera.updateProjectionMatrix();
+							break;
+					}
+
+				}
+
+				this.redrawsketch = function() {
+					groundx_y.position.z = controls.sketchpad_x_y;
+					linez.position.z = controls.sketchpad_x_y;
+
+					groundx_z.position.y = controls.sketchpad_x_z;
+					liney.position.y = controls.sketchpad_x_z;
+
+					groundy_z.position.x = controls.sketchpad_y_z;
+					linex.position.x = controls.sketchpad_y_z;
+				}
+
+				this.BasicCube = function() {
+					var g = new THREE.CubeGeometry(100, 100, 100);
+					var m = new THREE.MeshBasicMaterial({
+						color: 0x44abda
+					});
+					var Mesh = new THREE.Mesh(g, m);
+					scene.add(Mesh);
+				}
+
+				this.BasicSphere = function() {
+					var g = new THREE.SphereGeometry(100, 50, 50);
+					var m = new THREE.MeshBasicMaterial({
+						color: 0x44abda
+					});
+					var Mesh = new THREE.Mesh(g, m);
+					scene.add(Mesh);
+				}
+				this.inportOBJ = function() {
+					var objfile = document.getElementById('objfile');
+					var cross = document.getElementById('cross');
+					var check = document.getElementById('check');
+					var objname = document.getElementById('objName');
+
+					objfile.style.display = "block";
+					cross.style.display = "block";
+					check.style.display = "block";
+					objname.style.display = "block";
+
+					cross.addEventListener('click', function(event) {
+						event.preventDefault();
+						objfile.style.display = "none";
+						cross.style.display = "none";
+						check.style.display = "none";
+						objname.style.display = "none";
+					}, false);
+
+					check.addEventListener('click', function(event) {
+						event.preventDefault();
+						path = objfile.value;
+						objName = objname.value;
+						objfile.style.display = "none";
+						cross.style.display = "none";
+						check.style.display = "none";
+						objname.style.display = "none";
+						loadOBJ(path, objName);
+					}, false);
+				}
+			}
+
+			var gui = new dat.GUI();
+			var pencilGui = gui.addFolder("Pencil");
+			var eraserGui = gui.addFolder("Eraser");
+			var sketchpadGui = gui.addFolder("sketchpad");
+			var cameraGui = gui.addFolder("camera");
+			var basicGui = gui.addFolder("BasicMesh");
+
+			pencilGui.add(controls, 'pencil').onChange(controls.redrawLine);
+			pencilGui.add(controls, 'pencil_size', 0.8, 20).onChange(controls.redraw);
+			pencilGui.addColor(controls, 'pencil_color').onChange(controls.redraw);
+
+			eraserGui.add(controls, 'eraser').onChange(controls.reeraser);
+			eraserGui.add(controls, "eraser_type", ["cube", "sphere"]).onChange(controls.redraw);
+			eraserGui.add(controls, 'eraser_size', 5, 100).onChange(controls.redraw);
+
+			sketchpadGui.add(controls, 'sketchpad_target', ["x-y", "x-z", "y-z"]).onChange(controls.redrawtarget);
+			sketchpadGui.add(controls, 'sketchpad_x_y', -500, 500).onChange(controls.redrawsketch);
+			sketchpadGui.add(controls, 'sketchpad_x_z', -500, 500).onChange(controls.redrawsketch);
+			sketchpadGui.add(controls, 'sketchpad_y_z', -500, 500).onChange(controls.redrawsketch);
+
+			cameraGui.add(controls, 'camera_control').onChange(controls.redrawCamera);
+			cameraGui.add(controls, 'camera_position', ["x-y", "x-z", "y-z"]).onChange(controls.redrawcposition);
+
+			basicGui.add(controls, 'BasicCube');
+			basicGui.add(controls, 'BasicSphere');
+
+			gui.add(controls, 'exportOBJ');
+			gui.add(controls, 'inportOBJ');
+			gui.add(controls, 'exportSTL');
+			gui.add(controls, 'clearScene');
+			gui.add(controls, 'clearLastLine');
+			var clock = new THREE.Clock();
+
+			function render() {
+
+				var delta = clock.getDelta();
+
+				if(ct) {
+
+					camera_control.enabled = true;
+					camera_control.update(delta);
+				} else {
+					camera_control.enabled = false;
+				}
+
+				if(v.length > 2) {
+					if(v.length > 3) {
+						scene.remove(mesh);
+					}
+					drawLine(v, size, pickcolor);
+				}
+
+				raycaster.setFromCamera(mouse, camera);
+
+				var intersects = raycaster.intersectObjects(array);
+
+				if(intersects.length > 0) {
+
+					if(INTERSECTED != intersects[0].object) {
+
+						INTERSECTED = intersects[0].object;
+					}
+					helpPoint = intersects[0].point;
+				} else {}
+				renderer.render(scene, camera);
+				requestAnimationFrame(render);
+
+			}
+
+			init();
+			render();
+		</script>
+
+	</body>
+
+</html>
