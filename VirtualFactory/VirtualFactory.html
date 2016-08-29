@@ -13,21 +13,52 @@
 	</head>
 
 	<body>
-		<script type="text/javascript" src="../js/three/three.min.js"></script>
-		<script type="text/javascript" src="../js/three/DDSLoader.js"></script>
-		<script type="text/javascript" src="../js/three/MTLLoader.js"></script>
-		<script type="text/javascript" src="../js/three/OBJLoader.js"></script>
-		<script type="text/javascript" src="../js/three/Detector.js"></script>
-		<script type="text/javascript" src="../js/three/stats.min.js"></script>
-		<script type="text/javascript" src="../js/three/TrackballControls.js"></script>
+		<script type="text/javascript" src="../js/three.min.js"></script>
+		<script type="text/javascript" src="../js/DDSLoader.js"></script>
+		<script type="text/javascript" src="../js/MTLLoader.js"></script>
+		<script type="text/javascript" src="../js/OBJLoader.js"></script>
+		<script type="text/javascript" src="../js/Detector.js"></script>
+		<script type="text/javascript" src="../js/stats.min.js"></script>
+		<script type="text/javascript" src="../js/TrackballControls.js"></script>
+		<script type="text/javascript" src="../js/data.js"></script>
 
 		<script>
 			var renderer, scene, camera, light, mesh, control;
 			var invert = 1;
 			var phase = 0;
+			var item1 = 0,
+				item2 = 0,
+				item3 = 0;
+			var auto1 = false,
+				auto2 = false,
+				auto3 = false;
+			var carauto = true,
+				carauto2 = false;
+			var contain = new THREE.Object3D();
+
+			var b1, b2, b3, b4, b5, b6, b11, b12, b13, b14, b15, b16, b21, b22, b23, b24, b25, b26;
+
+			var r11, r12, r13, r14, r15, r16, r17, r21, r22, r23, r23, r24, r25, r26, r27, r31, r32, r33, r34, r35, r36, r37;
+
+			var objArray = ["1", "c1", "c2", "c3", "c4", "c5", "c6", "n1", "n2", "n3", "w1", "w2", "w3", "w4", "w5", "w6", "w7", "w8", "w9", "w10", "w11", "w12", "w13", "w14", "w15", "w16", "w17", "w18"];
+
+			var objCar = ["x1", "x2", "x3", "x4", "x7", "x8", "x9", "x10", "x11", "x12", "car"];
 
 			/* detector */
 			if(!Detector.webgl) Detector.addGetWebGLMessage();
+
+			// model
+
+			var onProgress = function(xhr) {
+				if(xhr.lengthComputable) {
+					var percentComplete = xhr.loaded / xhr.total * 100;
+					console.log(Math.round(percentComplete, 2) + '% downloaded');
+				}
+			};
+
+			var onError = function(xhr) {};
+
+			THREE.Loader.Handlers.add(/\.dds$/i, new THREE.DDSLoader());
 
 			function init() {
 
@@ -40,20 +71,34 @@
 				renderer.shadowMap.enabled = true;
 
 				scene = new THREE.Scene();
-				
+
 				var light = new THREE.AmbientLight(0xffffff);
 				scene.add(light);
-				
-				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000);
-				camera.position.set(-50, 20, -50);
+
+				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 100000);
+				camera.position.set(0, 6000, 1000);
 				camera.lookAt(new THREE.Vector3(10, 2, 10));
 
 				control = new THREE.TrackballControls(camera)
 				document.body.appendChild(renderer.domElement);
 				window.addEventListener('resize', onWindowResize, false);
 
-				loadObj();
+				for(var i = 0; i < objArray.length; i++) {
 
+					var objName = objArray[i];
+					loadObj(objName);
+
+				}
+				for(var i = 0; i < objCar.length; i++) {
+
+					var objName = objCar[i];
+					loadObjCar(objName);
+
+				}
+
+				loadRobot();
+
+				scene.add(contain);
 				render();
 			}
 
@@ -68,30 +113,18 @@
 			stats.showPanel(1);
 			document.body.appendChild(stats.domElement);
 
-			function loadObj() {
-				// model
-
-				var onProgress = function(xhr) {
-					if(xhr.lengthComputable) {
-						var percentComplete = xhr.loaded / xhr.total * 100;
-						console.log(Math.round(percentComplete, 2) + '% downloaded');
-					}
-				};
-
-				var onError = function(xhr) {};
-
-				THREE.Loader.Handlers.add(/\.dds$/i, new THREE.DDSLoader());
+			function loadObj(obj) {
 
 				var mtlLoader = new THREE.MTLLoader();
-				mtlLoader.setPath('../js/three/obj/');
-				mtlLoader.load('obj.mtl', function(materials) {
+				mtlLoader.setPath("abbRobot/");
+				mtlLoader.load("" + obj + ".mtl", function(materials) {
 
 					materials.preload();
 
 					var objLoader = new THREE.OBJLoader();
 					objLoader.setMaterials(materials);
-					objLoader.setPath('../js/three/obj/');
-					objLoader.load('obj.obj', function(object) {
+					objLoader.setPath("abbRobot/");
+					objLoader.load("" + obj + ".obj", function(object) {
 
 						scene.add(object);
 
@@ -101,16 +134,485 @@
 
 			}
 
+			function loadObjCar(obj) {
+
+				var mtlLoader = new THREE.MTLLoader();
+				mtlLoader.setPath("abbRobot/");
+				mtlLoader.load("" + obj + ".mtl", function(materials) {
+
+					materials.preload();
+
+					var objLoader = new THREE.OBJLoader();
+					objLoader.setMaterials(materials);
+					objLoader.setPath("abbRobot/");
+					objLoader.load("" + obj + ".obj", function(object) {
+
+						contain.add(object);
+
+					}, onProgress, onError);
+
+				});
+
+			}
+
+			function loadRobot() {
+
+				var mtlLoader = new THREE.MTLLoader();
+				var objLoader = new THREE.OBJLoader();
+
+				b1 = new THREE.Object3D();
+				b1.position.set(-1346.646, 1019.186, 828.813);
+
+				b2 = new THREE.Object3D();
+				b2.position.set(-1346.646, 1133.842, 828.813);
+
+				b3 = new THREE.Object3D();
+				b3.position.set(-1346.646, 1409.008, 828.813);
+
+				b4 = new THREE.Object3D();
+				b4.position.set(-1346.646, 1466.286, 986.709);
+
+				b5 = new THREE.Object3D();
+				b5.position.set(-1346.646, 1466.286, 1122.557);
+
+				b6 = new THREE.Object3D();
+				b6.position.set(-1346.646, 1466.286, 1211.589);
+
+				b11 = new THREE.Object3D();
+				b11.position.set(57.354, 1019.186, 828.813);
+
+				b12 = new THREE.Object3D();
+				b12.position.set(57.354, 1133.842, 828.813);
+
+				b13 = new THREE.Object3D();
+				b13.position.set(57.354, 1409.008, 828.813);
+
+				b14 = new THREE.Object3D();
+				b14.position.set(57.354, 1466.286, 986.709);
+
+				b15 = new THREE.Object3D();
+				b15.position.set(57.354, 1466.286, 1122.557);
+
+				b16 = new THREE.Object3D();
+				b16.position.set(57.354, 1466.286, 1211.589);
+
+				b21 = new THREE.Object3D();
+				b21.position.set(1461.354, 1019.186, 828.813);
+
+				b22 = new THREE.Object3D();
+				b22.position.set(1461.354, 1133.842, 828.813);
+
+				b23 = new THREE.Object3D();
+				b23.position.set(1461.354, 1409.008, 828.813);
+
+				b24 = new THREE.Object3D();
+				b24.position.set(1461.354, 1466.286, 986.709);
+
+				b25 = new THREE.Object3D();
+				b25.position.set(1461.354, 1466.286, 1122.557);
+
+				b26 = new THREE.Object3D();
+				b26.position.set(1461.354, 1466.286, 1211.589);
+
+				// Abbrobot1
+
+				mtlLoader.setPath("abbRobot/");
+				mtlLoader.load("nr11.mtl", function(materials) {
+					materials.preload();
+					objLoader.setMaterials(materials);
+					objLoader.setPath("abbRobot/");
+					objLoader.load("nr11.obj", function(object) {
+
+						r11 = object;
+						r11.add(b1);
+						scene.add(r11);
+					}, onProgress, onError);
+
+				});
+
+				mtlLoader.setPath("abbRobot/");
+				mtlLoader.load("nr12.mtl", function(materials) {
+					materials.preload();
+					objLoader.setMaterials(materials);
+					objLoader.setPath("abbRobot/");
+					objLoader.load("nr12.obj", function(object) {
+
+						r12 = object;
+						r12.add(b2);
+						scene.add(r12);
+					}, onProgress, onError);
+
+				});
+
+				mtlLoader.setPath("abbRobot/");
+				mtlLoader.load("nr13.mtl", function(materials) {
+					materials.preload();
+					objLoader.setMaterials(materials);
+					objLoader.setPath("abbRobot/");
+					objLoader.load("nr13.obj", function(object) {
+
+						r13 = object;
+						r13.position.set(1346.646, -1133.842, -828.813);
+						b2.add(r13);
+						r13.add(b3);
+					}, onProgress, onError);
+
+				});
+
+				mtlLoader.setPath("abbRobot/");
+				mtlLoader.load("nr14.mtl", function(materials) {
+					materials.preload();
+					objLoader.setMaterials(materials);
+					objLoader.setPath("abbRobot/");
+					objLoader.load("nr14.obj", function(object) {
+
+						r14 = object;
+						r14.position.set(1346.646, -1409.008, -828.813);
+						b3.add(r14);
+						r14.add(b4);
+					}, onProgress, onError);
+
+				});
+
+				mtlLoader.setPath("abbRobot/");
+				mtlLoader.load("nr15.mtl", function(materials) {
+					materials.preload();
+					objLoader.setMaterials(materials);
+					objLoader.setPath("abbRobot/");
+					objLoader.load("nr15.obj", function(object) {
+
+						r15 = object;
+						r15.position.set(1346.646, -1466.286, -986.709);
+						b4.add(r15);
+						r15.add(b5);
+					}, onProgress, onError);
+
+				});
+
+				mtlLoader.setPath("abbRobot/");
+				mtlLoader.load("nr16.mtl", function(materials) {
+					materials.preload();
+					objLoader.setMaterials(materials);
+					objLoader.setPath("abbRobot/");
+					objLoader.load("nr16.obj", function(object) {
+
+						r16 = object;
+						r16.position.set(1346.646, -1466.286, -1122.557);
+						b5.add(r16);
+						r16.add(b6);
+					}, onProgress, onError);
+
+				});
+
+				mtlLoader.setPath("abbRobot/");
+				mtlLoader.load("nj1.mtl", function(materials) {
+					materials.preload();
+					objLoader.setMaterials(materials);
+					objLoader.setPath("abbRobot/");
+					objLoader.load("nj1.obj", function(object) {
+
+						r17 = object;
+						r17.position.set(1346.646, -1466.286, -1211.589);
+						b6.add(r17);
+					}, onProgress, onError);
+
+				});
+
+				// Abbrobot2
+
+				mtlLoader.setPath("abbRobot/");
+				mtlLoader.load("nr21.mtl", function(materials) {
+					materials.preload();
+					objLoader.setMaterials(materials);
+					objLoader.setPath("abbRobot/");
+					objLoader.load("nr21.obj", function(object) {
+
+						r21 = object;
+						r21.add(b11);
+						scene.add(r21);
+					}, onProgress, onError);
+
+				});
+
+				mtlLoader.setPath("abbRobot/");
+				mtlLoader.load("nr22.mtl", function(materials) {
+					materials.preload();
+					objLoader.setMaterials(materials);
+					objLoader.setPath("abbRobot/");
+					objLoader.load("nr22.obj", function(object) {
+
+						r22 = object;
+						r22.add(b12);
+						scene.add(r22);
+					}, onProgress, onError);
+
+				});
+
+				mtlLoader.setPath("abbRobot/");
+				mtlLoader.load("nr23.mtl", function(materials) {
+					materials.preload();
+					objLoader.setMaterials(materials);
+					objLoader.setPath("abbRobot/");
+					objLoader.load("nr23.obj", function(object) {
+
+						r23 = object;
+						r23.position.set(-57.354, -1133.842, -828.813);
+						b12.add(r23);
+						r23.add(b13);
+					}, onProgress, onError);
+
+				});
+
+				mtlLoader.setPath("abbRobot/");
+				mtlLoader.load("nr24.mtl", function(materials) {
+					materials.preload();
+					objLoader.setMaterials(materials);
+					objLoader.setPath("abbRobot/");
+					objLoader.load("nr24.obj", function(object) {
+
+						r24 = object;
+						r24.position.set(-57.354, -1409.008, -828.813);
+						b13.add(r24);
+						r24.add(b14);
+					}, onProgress, onError);
+
+				});
+
+				mtlLoader.setPath("abbRobot/");
+				mtlLoader.load("nr25.mtl", function(materials) {
+					materials.preload();
+					objLoader.setMaterials(materials);
+					objLoader.setPath("abbRobot/");
+					objLoader.load("nr25.obj", function(object) {
+
+						r25 = object;
+						r25.position.set(-57.354, -1466.286, -986.709);
+						b14.add(r25);
+						r25.add(b15);
+					}, onProgress, onError);
+
+				});
+
+				mtlLoader.setPath("abbRobot/");
+				mtlLoader.load("nr26.mtl", function(materials) {
+					materials.preload();
+					objLoader.setMaterials(materials);
+					objLoader.setPath("abbRobot/");
+					objLoader.load("nr26.obj", function(object) {
+
+						r26 = object;
+						r26.position.set(-57.354, -1466.286, -1122.557);
+						b15.add(r26);
+						r26.add(b16);
+					}, onProgress, onError);
+
+				});
+
+				mtlLoader.setPath("abbRobot/");
+				mtlLoader.load("nj2.mtl", function(materials) {
+					materials.preload();
+					objLoader.setMaterials(materials);
+					objLoader.setPath("abbRobot/");
+					objLoader.load("nj2.obj", function(object) {
+
+						r27 = object;
+						r27.position.set(-57.354, -1466.286, -1211.589);
+						b16.add(r27);
+					}, onProgress, onError);
+
+				});
+
+				// Abbrobot3
+
+				mtlLoader.setPath("abbRobot/");
+				mtlLoader.load("nr31.mtl", function(materials) {
+					materials.preload();
+					objLoader.setMaterials(materials);
+					objLoader.setPath("abbRobot/");
+					objLoader.load("nr31.obj", function(object) {
+
+						r31 = object;
+						r31.add(b21);
+						scene.add(r31);
+					}, onProgress, onError);
+
+				});
+
+				mtlLoader.setPath("abbRobot/");
+				mtlLoader.load("nr32.mtl", function(materials) {
+					materials.preload();
+					objLoader.setMaterials(materials);
+					objLoader.setPath("abbRobot/");
+					objLoader.load("nr32.obj", function(object) {
+
+						r32 = object;
+						r32.add(b22);
+						scene.add(r32);
+					}, onProgress, onError);
+
+				});
+
+				mtlLoader.setPath("abbRobot/");
+				mtlLoader.load("nr33.mtl", function(materials) {
+					materials.preload();
+					objLoader.setMaterials(materials);
+					objLoader.setPath("abbRobot/");
+					objLoader.load("nr33.obj", function(object) {
+
+						r33 = object;
+						r33.position.set(-1461.354, -1133.842, -828.813);
+						b22.add(r33);
+						r33.add(b23);
+					}, onProgress, onError);
+
+				});
+
+				mtlLoader.setPath("abbRobot/");
+				mtlLoader.load("nr34.mtl", function(materials) {
+					materials.preload();
+					objLoader.setMaterials(materials);
+					objLoader.setPath("abbRobot/");
+					objLoader.load("nr34.obj", function(object) {
+
+						r34 = object;
+						r34.position.set(-1461.354, -1409.008, -828.813);
+						b23.add(r34);
+						r34.add(b24);
+					}, onProgress, onError);
+
+				});
+
+				mtlLoader.setPath("abbRobot/");
+				mtlLoader.load("nr35.mtl", function(materials) {
+					materials.preload();
+					objLoader.setMaterials(materials);
+					objLoader.setPath("abbRobot/");
+					objLoader.load("nr35.obj", function(object) {
+
+						r35 = object;
+						r35.position.set(-1461.354, -1466.286, -986.709);
+						b24.add(r35);
+						r35.add(b25);
+					}, onProgress, onError);
+
+				});
+
+				mtlLoader.setPath("abbRobot/");
+				mtlLoader.load("nr36.mtl", function(materials) {
+					materials.preload();
+					objLoader.setMaterials(materials);
+					objLoader.setPath("abbRobot/");
+					objLoader.load("nr36.obj", function(object) {
+
+						r36 = object;
+						r36.position.set(-1461.354, -1466.286, -1122.557);
+						b25.add(r36);
+						r36.add(b26);
+					}, onProgress, onError);
+
+				});
+
+				mtlLoader.setPath("abbRobot/");
+				mtlLoader.load("nj3.mtl", function(materials) {
+					materials.preload();
+					objLoader.setMaterials(materials);
+					objLoader.setPath("abbRobot/");
+					objLoader.load("nj3.obj", function(object) {
+
+						r37 = object;
+						r37.position.set(-1461.354, -1466.286, -1211.589);
+						b26.add(r37);
+					}, onProgress, onError);
+
+				});
+			}
+
 			var clock = new THREE.Clock();
 
 			function render() {
+				console.log(abbSim3.length);
 				var delta = clock.getDelta();
 
-				control.update(delta);				
+				control.update(delta);
 				stats.update();
 
 				requestAnimationFrame(render);
 				renderer.render(scene, camera);
+                
+                console.log(contain.position.x);
+                
+				if(carauto) {
+					contain.position.x += 2;
+				}
+				// 1300 2650 4150                
+				if(contain.position.x >= 1300 && contain.position.x <= 1350) {
+					auto1 = true;
+					carauto = false;
+				}
+				if(contain.position.x >= 2650 && contain.position.x <= 2700) {
+					auto2 = true;
+					carauto = false;
+				}
+				if(contain.position.x >= 4150 && contain.position.x <= 4200) {
+					auto3 = true;
+					carauto = false;
+				}
+				if(contain.position.x >= 5400) {
+					carauto = false;
+				}
+
+				if(auto1) {
+
+					if(item1++ < 775) {
+
+						var i = Math.floor(item1 / 5);
+
+						b1.rotation.y = Math.PI / 180 * abbSim1[i][0];
+						b2.rotation.x = Math.PI / 180 * abbSim1[i][1];
+						b3.rotation.x = Math.PI / 180 * abbSim1[i][2];
+						b4.rotation.z = Math.PI / 180 * abbSim1[i][3];
+						b5.rotation.x = Math.PI / 180 * abbSim1[i][4];
+						b6.rotation.z = Math.PI / 180 * abbSim1[i][5];
+					} else {
+						auto1 = false;
+						carauto = true;
+					}
+
+				}
+
+				if(auto2) {
+					if(item2++ < 730) {
+
+						var i = Math.floor(item2 / 5);
+
+						b11.rotation.y = Math.PI / 180 * abbSim2[i][0];
+						b12.rotation.x = Math.PI / 180 * abbSim2[i][1];
+						b13.rotation.x = Math.PI / 180 * abbSim2[i][2];
+						b14.rotation.z = Math.PI / 180 * abbSim2[i][3];
+						b15.rotation.x = Math.PI / 180 * abbSim2[i][4];
+						b16.rotation.z = Math.PI / 180 * abbSim2[i][5];
+					} else {
+						auto2 = false;
+						carauto = true;
+					}
+				}
+
+				if(auto3) {
+					if(item3++ < 765) {
+
+						var i = Math.floor(item3 / 5);
+
+						b21.rotation.y = Math.PI / 180 * abbSim3[i][0];
+						b22.rotation.x = Math.PI / 180 * abbSim3[i][1];
+						b23.rotation.x = Math.PI / 180 * abbSim3[i][2];
+						b24.rotation.z = Math.PI / 180 * abbSim3[i][3];
+						b25.rotation.x = Math.PI / 180 * abbSim3[i][4];
+						b26.rotation.z = Math.PI / 180 * abbSim3[i][5];
+					} else {
+						auto3 = false;
+						carauto = true;
+					}
+				}
 
 			}
 			init();

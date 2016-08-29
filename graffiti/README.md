@@ -1,5 +1,8 @@
 3D-Graffiti 功能面板简介。
 
+> 仅供学习和交流，版权归原作者所有
+
+
 ## pencil
 
 ### pencil 
