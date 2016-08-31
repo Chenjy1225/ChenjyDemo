@@ -530,7 +530,6 @@
 			var clock = new THREE.Clock();
 
 			function render() {
-				console.log(abbSim3.length);
 				var delta = clock.getDelta();
 
 				control.update(delta);
@@ -539,7 +538,6 @@
 				requestAnimationFrame(render);
 				renderer.render(scene, camera);
                 
-                console.log(contain.position.x);
                 
 				if(carauto) {
 					contain.position.x += 2;
