@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>FirstLockControl</title>
+		<style>
+			html,
+			body {
+				width: 100%;
+				height: 100%;
+			}
+			
+			body {
+				background-color: #ffffff;
+				margin: 0;
+				overflow: hidden;
+				font-family: arial;
+			}
+			
+			#blocker {
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				background-color: rgba(0, 0, 0, 0.5);
+			}
+			
+			#instructions {
+				width: 100%;
+				height: 100%;
+				display: block;
+				color: #ffffff;
+				text-align: center;
+				cursor: pointer;
+			}
+			
+			#instructions span {
+				font-size: 40px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<script type="text/javascript" src="../js/three.min.js"></script>
+		<script type="text/javascript" src="../js/physi.js"></script>
+		<script type="text/javascript" src="../js/dat.gui.js"></script>
+		<script type="text/javascript" src="../js/Detector.js"></script>
+		<script type="text/javascript" src="../js/DDSLoader.js"></script>
+		<script type="text/javascript" src="../js/MTLLoader.js"></script>
+		<script type="text/javascript" src="../js/OBJLoader.js"></script>
+		<script type="text/javascript" src="FirstLockControl.js"></script>
+		<script>
+			'use strict';
+			Physijs.scripts.worker = '../js/physijs_worker.js';
+			Physijs.scripts.ammo = 'ammo.js';
+
+			if(!Detector.webgl) Detector.addGetWebGLMessage();
+
+			var camera, scene, renderer, p_controls;
+
+			function init() {
+
+				scene = new Physijs.Scene();
+
+				camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 100000);
+
+				renderer = new THREE.WebGLRenderer({
+					antialias: true,
+					alpha: true
+				});
+				renderer.setPixelRatio(window.devicePixelRatio);
+				renderer.shadowMapEnabled = true;
+				renderer.shadowMapType = 1;
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				renderer.setClearColor(0x000000);
+
+				var light = new THREE.AmbientLight(0xeeeeee);
+				light.intensity = 0.5;
+				scene.add(light);
+
+				p_controls = new FirstLockControl(camera);
+
+				var g_mesh = new Physijs.BoxMesh(new THREE.CubeGeometry(1000, 1, 1000), Physijs.createMaterial(new THREE.MeshPhongMaterial({
+					opacity: 0,
+					transparent: true
+				})), 0);
+				g_mesh.position.set(0, 0, 0);
+				scene.add(g_mesh);
+
+				document.body.appendChild(renderer.domElement);
+				loadObj();
+				addDat();
+				render();
+			}
+
+			function loadObj() {
+				var onProgress = function(xhr) {
+					if(xhr.lengthComputable) {
+						var percentComplete = xhr.loaded / xhr.total * 100;
+						console.log(Math.round(percentComplete, 2) + '% downloaded');
+					}
+				};
+
+				var onError = function(xhr) {};
+
+				THREE.Loader.Handlers.add(/\.dds$/i, new THREE.DDSLoader());
+
+				var mtlLoader = new THREE.MTLLoader();
+				mtlLoader.setPath('model/');
+				mtlLoader.load('gy.mtl', function(materials) {
+
+					materials.preload();
+
+					var objLoader = new THREE.OBJLoader();
+					objLoader.setMaterials(materials);
+					objLoader.setPath('model/');
+					objLoader.load('gy.obj', function(object) {
+
+						scene.add(object);
+
+					}, onProgress, onError);
+
+				});
+
+			}
+
+			function addDat() {
+
+				var controls = new function() {
+					this.moveSpeed = 200;
+					this.lookSpeed = 0.2;
+				}
+				var gui = new dat.GUI();
+
+				gui.add(controls, 'moveSpeed', 0, 1000).onChange(function(event) {
+					p_controls.moveSpeed = event;
+				});
+				gui.add(controls, 'lookSpeed', 0, 1).onChange(function(event) {
+					p_controls.lookSpeed = event;
+				});
+			}
+
+			function render() {
+				p_controls.move();
+				requestAnimationFrame(render);
+				renderer.render(scene, camera);
+
+			}
+			init();
+		</script>
+	</body>
+
+</html>
