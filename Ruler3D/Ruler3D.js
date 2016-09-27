@@ -147,7 +147,7 @@ THREE.Ruler3D = function (scene, camera, domElement, sizes) {
         ]);
 
         var _loader = new THREE.FontLoader();
-        _loader.load('js/optimer_bold.typeface.json', function (response) {
+        _loader.load('../js/optimer_bold.typeface.json', function (response) {
 
             font = response;
 

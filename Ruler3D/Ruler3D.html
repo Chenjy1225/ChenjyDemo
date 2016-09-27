@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>three-raycaster</title>
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+		<script src="Ruler3D.js"></script>
+	</head>
+
+	<body>
+		<script type="text/javascript" src="../js/three.min.js"></script>
+		<script type="text/javascript" src="../js/Detector.js"></script>
+		<script type="text/javascript" src="../js/stats.min.js"></script>
+		<script type="text/javascript" src="../js/OrbitControls.js"></script>
+		<script type="text/javascript" src="Ruler3D.js"></script>
+
+		<script>
+			var renderer, scene, camera, light, mesh, control;
+			var raycaster;
+			var array = [];
+			var mouse;
+			var INTERSECTED;
+
+			/* detector */
+			if(!Detector.webgl) Detector.addGetWebGLMessage();
+
+			function init() {
+
+				renderer = new THREE.WebGLRenderer({
+					antialias: true
+				});
+				renderer.setClearColor(0xffffff);
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				renderer.shadowMap.enabled = true;
+                
+				scene = new THREE.Scene();
+				
+				var light = new THREE.AmbientLight(0xffffff);
+				scene.add(light);
+
+				camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 10000);
+				camera.lookAt(new THREE.Vector3(-20, 0, -20));
+                camera.position.set(100, 200, 100);
+                 
+				control = new THREE.OrbitControls(camera,renderer.domElement)
+				raycaster = new THREE.Raycaster();
+				mouse = new THREE.Vector2();
+				document.body.appendChild(renderer.domElement);
+				document.addEventListener('mousemove', onDocumentMouseMove, false);
+				window.addEventListener('resize', onWindowResize, false);
+
+				var ruler = new THREE.Ruler3D(scene,camera,renderer.domElement,1000);
+
+				creatCube();
+				render();
+			}
+
+			function onDocumentMouseMove(event) {
+				event.preventDefault();
+				mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+				mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+			}
+
+			function creatCube() {
+				
+				 for (var i = 0; i < 50; i++) {  
+                    var geometry = new THREE.CubeGeometry(25, 25, 25);  
+                    var material = new THREE.MeshBasicMaterial({  
+                        color: Math.random() * 0xffffff,  
+                        opacity: 0.4  
+                    });  
+                    var mesh = new THREE.Mesh(geometry, material);  
+                    mesh.position.x = Math.random() * 400 - 10;  
+                    mesh.position.y = Math.random() * 400 - 10;  
+                    mesh.position.z = Math.random() * 400 - 10;  
+                    scene.add(mesh); 
+                    array.push(mesh);
+                }  
+
+			}
+
+			/* resize */
+			function onWindowResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+			}
+			/* stats */
+			var stats = new Stats();
+			stats.showPanel(1);
+			document.body.appendChild(stats.domElement);
+
+			var clock = new THREE.Clock();
+			function render() {
+				var delta = clock.getDelta();
+
+				control.update(delta);				
+				stats.update();
+
+				raycaster.setFromCamera(mouse, camera);
+				var intersects = raycaster.intersectObjects(array);
+
+				if(intersects.length > 0) {
+					if(INTERSECTED != intersects[0].object) {
+
+						if(INTERSECTED) INTERSECTED.material.color.setHex(INTERSECTED.currentHex);
+						INTERSECTED = intersects[0].object;
+						INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
+						INTERSECTED.material.color.set(Math.random() * 0xffffff);
+					}
+				} else {
+					if(INTERSECTED) INTERSECTED.material.color.set(INTERSECTED.currentHex);
+					INTERSECTED = null;
+				}
+
+				requestAnimationFrame(render);
+				renderer.render(scene, camera);
+			}
+			init();
+		</script>
+		<script type="text/javascript" src="../js/cjy_info.js"></script>
+
+	</body>
+
+</html>
