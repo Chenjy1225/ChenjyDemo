@@ -34,19 +34,19 @@ API
 
 ```js
 
-    var controls = new FirstLockControl(camera);
+    var controls = new THREE.FirstLockControl(scene,camera);
 
 ```           
 
 ### step3 渲染
 
-调用controls的move方法
+调用controls的update方法
 
 ```js
 
 	function render() {
 	
-			controls.move();
+			controls.update();
 			requestAnimationFrame(render);
 			renderer.render(scene, camera);
 	
