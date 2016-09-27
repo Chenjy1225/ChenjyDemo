@@ -5,6 +5,11 @@ FirstLockControl 功能简介。
 
 FirstLockControl是一个基于Physijs的锁屏第一人称控制器。
 
+### Constructor
+
+THREE.FirstLockControl(scene, camera, domElement);
+
+
 API
 
 * moveSpeed 角色移动速度 `default：200`
