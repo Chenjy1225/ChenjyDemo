@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="lib" path="G:/eclipse-WorkSpace/Chenjy1225/commons-beanutils-1.9.2.jar"/>
+	<classpathentry kind="lib" path="G:/eclipse-WorkSpace/Chenjy1225/commons-collections-3.2.1.jar"/>
+	<classpathentry kind="lib" path="G:/eclipse-WorkSpace/Chenjy1225/commons-lang-2.6.jar"/>
+	<classpathentry kind="lib" path="G:/eclipse-WorkSpace/Chenjy1225/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="G:/eclipse-WorkSpace/Chenjy1225/ezmorph-1.0.6.jar"/>
+	<classpathentry kind="lib" path="G:/eclipse-WorkSpace/Chenjy1225/json-lib-2.2.2-jdk15.jar"/>
+	<classpathentry kind="lib" path="/SmartGuidepost/WebRoot/WEB-INF/lib/fastjson-1.1.40.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
