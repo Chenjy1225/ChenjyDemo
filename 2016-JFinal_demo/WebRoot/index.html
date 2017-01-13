@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title></title>
+	</head>
+	<body>
+		<span>账号</span>
+		<input type="text" id="username" />
+		<span>密码</span>
+		<input type="text" id="password" />
+		<button id="add">添加</button>
+		<button id="delete">删除</button>
+		<button id="find">查询</button>
+		<button id="update">修改</button>
+		<button id="file_upload_1">上传图片</button>
+	</body>
+	<script type="text/javascript" src="js/jquery-1.9.1.js" ></script>
+    <script type="text/javascript" src="js/uploadify/jquery.uploadify.min.js"></script>
+	
+	<script>
+		
+		$(document).ready(function(){
+
+			$("#add").click(function(){
+				var _userName = $("#username").val();
+				var _password = $("#password").val();
+				
+				$.post("hello/addUser",{userName:_userName,password:_password},function(data){
+					alert(data);
+				})
+				
+			});
+			
+			$("#delete").click(function(){
+				var _userName = $("#username").val();
+				var _password = $("#password").val();
+				
+				$.post("hello/deleteUser",{userName:_userName,password:_password},function(data){
+					alert(data);
+				})
+				
+			});
+			
+			$("#find").click(function(){
+				/* var _userName = $("#username").val();
+				
+				$.post("hello/findUser",{userName:_userName},function(data){
+					alert(data);
+				}) */
+				$.post("hello/sendSms",{mobile:"18352838151"},function(data){
+					console.log(data);
+					_info = data.info;
+					
+					if(_info =="success"){
+						layer.alert("验证码发送成功，请查收");
+					}else if(_info =="error"){
+						layer.alert("验证码发送失败");
+					}
+				});
+			});		
+			
+			$("#update").click(function(){
+				var _userName = $("#username").val();
+				var _password = $("#password").val();
+				
+				$.post("hello/updateUser",{userName:_userName,password:_password},function(data){
+					alert(data);
+				})
+				
+			});		
+			
+		    $("#file_upload_1").uploadify({
+		        height        : 30,
+		        swf           : 'js/uploadify/uploadify.swf',
+		        uploader      : 'upload/upload',
+				buttonText    : '上传图片',
+		        width         : 120,
+				onUploadSuccess : function(file, data, response) {
+					 var root = $.parseJSON(data);
+					     console.log(root);
+					     fileRoot = root.fileRoot;
+				}
+		    });
+		})
+	</script>
+</html>

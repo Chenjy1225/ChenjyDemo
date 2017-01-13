@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="css/page.css" />
+<title></title>
+<style>
+.uploadify {
+	height: 30px !important;
+	width: 85px !important;
+	display: inline-block;
+	background-color: #0576bf;
+	border-color: #03579a;
+	color: #fff;
+	font-size: 14px;
+	line-height: 30px;
+}
+
+.uploadify-button.crud-btn.import-btn {
+	text-align: center;
+}
+
+.uploadify-queue {
+	display: none;
+}
+</style>
+</head>
+<body>
+	<button id="export">导出Excel</button>
+	<button id="exportS">导出Excel模板</button>
+	<button id="inport" value="1">导入Excel</button>
+	<div class="table-inner">
+		<div class="table-head">
+			<table>
+				<thead>
+					<tr>
+						<th>List1</th>
+						<th>List2</th>
+						<th>List3</th>
+					</tr>
+				</thead>
+			</table>
+		</div>
+		<div class="table-body">
+			<table>
+				<tbody id="tbody">
+					<tr>
+						<td>1</td>
+						<td>2</td>
+						<td>3</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="page-wrap">
+			<div class="page-info">
+				<span>共有:</span><span id="listCount">1</span><span>条</span> <span>共有:</span><span
+					id="pageCount">1</span><span>页</span> <span>页面显示:</span><span
+					id="currentCount">1</span> <span>条</span> <span class="current "
+					id="firstPage"><<</span> <span class="current " id="PreviousPage"><</span>
+				<span class="current " id="pageIndex">1</span> <span
+					class="current " id="nextPage">></span> <span class="current "
+					id="lastPage">>></span> <input type="text" id="go_index" /> <span
+					class="current" id="go">GO</span>
+			</div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript" src="js/jquery-1.9.1.js"></script>
+<script type="text/javascript"
+	src="js/uploadify/jquery.uploadify.min.js"></script>
+<script type="text/javascript" src="js/layer/layer.js"></script>
+<script type="text/javascript">
+	var pageIndex = 1, pageCount;
+
+	$(document)
+			.ready(
+					function() {
+
+						Page();
+
+						//首页
+						$("#firstPage").click(function() {
+
+							pageIndex = 1;
+
+							Page();
+
+						});
+
+						//上一页
+						$("#PreviousPage").click(function() {
+
+							pageIndex = pageIndex - 1;
+							if (pageIndex == 0) {
+								pageIndex = 1;
+							}
+
+							Page();
+
+						});
+
+						//下一页
+						$("#nextPage").click(function() {
+
+							pageIndex = pageIndex + 1;
+							if (pageIndex >= pageCount) {
+								pageIndex = pageCount;
+							}
+
+							Page();
+						});
+
+						//尾页
+						$("#lastPage").click(function() {
+
+							pageIndex = pageCount;
+
+							Page();
+
+						});
+
+						// Go
+						$("#go").click(function() {
+
+							var _index = $("#go_index").val().trim();
+
+							if (_index > 0 && _index <= pageCount) {
+
+								pageIndex = _index;
+
+							} else {
+
+								alert("请输入正确页码");
+
+							}
+							Page();
+							$("#go_index").val("");
+
+						});
+
+						$("#export").click(function() {
+
+							$.post("excel/exportOutExcel", {
+								sheetName : "报表"
+							}, function(data) {
+
+								var relativePath = data.relativePath;
+								window.location.href = "." + relativePath;
+
+							});
+						});
+						
+						$("#exportS").click(function(){
+							
+							$.post("excel/exportOutExcelStandard", {
+								sheetName : "报表"
+							}, function(data) {
+								var relativePath = data.relativePath;
+								console.log(relativePath);
+								window.location.href ="." +relativePath;
+
+							});							
+							
+						});
+
+						$('#inport')
+								.uploadify(
+										{
+											'swf' : 'js/uploadify/uploadify.swf',
+											'buttonText' : '导入Excel',
+											'auto' : false,
+											'buttonClass' : 'crud-btn import-btn',
+											'width' : '78',
+											'height' : '26',
+											'fileTypeExts' : '*.xls;*.xlsx',
+											'uploader' : 'inexcel/exportInExcel',
+											'removeCompleted' : true,
+											'onSelect' : function(file) {
+												layer
+														.confirm(
+																'请选择清空数据库插入，还是追加插入？',
+																{
+																	btn : [
+																			'清空插入',
+																			'追加插入' ]
+																//按钮
+																},
+																function() {
+																	$("#inport")
+																			.uploadify(
+																					"settings",
+																					"uploader",
+																					"../../inexcel/exportInExcel?flag=1");
+																	$('#inport')
+																			.uploadify(
+																					'upload',
+																					'*');
+																},
+																function() {
+																	$("#inport")
+																			.uploadify(
+																					"settings",
+																					"uploader",
+																					"../../inexcel/exportInExcel?flag=0");
+																	$('#inport')
+																			.uploadify(
+																					'upload',
+																					'*');
+																});
+											},
+											'onUploadStart' : function(file) {
+
+											},
+											'onUploadSuccess' : function(file,
+													data, respone) {
+												var img = $.parseJSON(data);
+												if (img.flag != "1") {
+													alert(img.flag);
+												} else {
+													alert("导入成功！", function() {
+														window.location
+																.reload();
+													});
+												}
+												$('#pic_upload').uploadify(
+														'stop');
+											}
+										});
+
+					});
+
+	function Page() {
+
+		$.post("hello/IofoList", {
+			pageIndex : pageIndex
+		}, function(data) {
+
+			var _html = "";
+			var _list = data.list;
+			$("#tbody").empty();
+
+			if (_list.length != 0 && _list.length != null) {
+
+				for (var _i = 0; _i < _list.length; _i++) {
+
+					var _list_ = _list[_i];
+
+					_html += "<tr><td>" + (_list_.id == null ? "" : _list_.id)
+							+ "</td>" + "<td>"
+							+ (_list_.caseId == null ? "" : _list_.caseId)
+							+ "</td>" + "<td>"
+							+ (_list_.imgId == null ? "" : _list_.imgId)
+							+ "</td></tr>";
+
+				}
+
+				$("#tbody").append(_html);
+
+				var _page = data.pageInfo;
+
+				pageCount = _page.pageCount;
+
+				$("#listCount").html(_page.count);
+				$("#pageCount").html(pageCount);
+				$("#currentCount").html(_list.length);
+				$("#pageIndex").html(pageIndex);
+
+			} else {
+				alert("暂无数据");
+			}
+
+		});
+
+	}
+</script>
+
+</html>
