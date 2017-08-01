@@ -1,0 +1,43 @@
+<resources>
+    <string name="app_name">Products</string>
+
+    <string name="main_model">模型</string>
+    <string name="main_fix">メンテナンス</string>
+    <string name="main_set">設置</string>
+    <string name="maintenance_zero">零点検出</string>
+    <string name="maintenance_backzero">零点に戻る</string>
+    <string name="maintenance_clean">整理</string>
+    <string name="sample_back">戻る</string>
+    <string name="sample_start">印刷開始</string>
+    <string name="sample_view">プレビュー</string>
+    <string name="sample_info">詳細情報</string>
+    <string name="setting_set">光硬化設置</string>
+    <string name="show_state">状態表示</string>
+    <string name="show_cancel">終わり印刷</string>
+    <string name="setting_lan">言語選択</string>
+    <string name="setting_lanc">中文</string>
+    <string name="setting_lane">English</string>
+    <string name="setting_lanj">日本語</string>
+
+    <string name="dlp_name">名称</string>
+    <string name="dlp_path">経路</string>
+    <string name="dlp_size">大きさ</string>
+
+    <string name="root_directory">主ディレクトリ</string>
+    <string name="sdcard_directory">SDカード</string>
+    <string name="connect_status">リンク状態</string>
+    <string name="screen_size">露光の解像度</string>
+    <string name="confirm">確定</string>
+    <string name="cancel">キャンセル</string>
+    <string name="maintenance_backzero_is">ゼロに戻るかどうか</string>
+    <string name="set_light">露光時間を設定する</string>
+    <string name="set_light_s">を入力してください露出時間(ms)</string>
+    <string name="reset">再設定して下さい</string>
+    <string name="settting">設定中...</string>
+
+    <string name="set_zparam">Z軸パラメータを設定</string>
+    <string name="motor_x">エジェクタ電機パラメーター（X軸）設定</string>
+    <string name="motor_y">スキージモータパラメータ（Y軸）を設置</string>
+    <string name="light">露光ランプが空より</string>
+
+</resources>

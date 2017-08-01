@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="textColor">#f4f0f0</color>
+    <color name="textColorPress">#912626</color>
+    <color name="gray">#bcabab</color>
+    <color name="grayText">#bcabab</color>
+    <color name="white">#FFFFFF</color>
+    <color name="gray_99">#999999</color>
+    <color name="devider">#DEDFE0</color>
+    <color name="colorBlank">#000000</color>
+    <color name="colorWhite">#ffffff</color>
+    <color name="colorRed">#ff0000</color>
+    <color name="colorBlue">#0000ff</color>
+    <color name="colorGrey">#DFDFDF</color>
+    <color name="windowBg">#EEEEEE</color>
+
+    <color name="black_semi_transparent">#B2000000</color>
+    <color name="background">#e5e5e5</color>
+    <color name="half_black">#808080</color>
+    <color name="white_pressed">#f1f1f1</color>
+    <color name="pink">#e91e63</color>
+    <color name="pink_pressed">#ec407a</color>
+    <color name="blue_semi_transparent">#805677fc</color>
+    <color name="blue_semi_transparent_pressed">#80738ffe</color>
+
+    <color name="blue_blue_transparent">#8006A9F6</color>
+    <color name="blue_blue_transparent_pressed">#8026D9F6</color>
+
+    <color name="white_semi_transparent">#80FFFFFF</color>
+    <color name="transparent">#00000000</color>
+
+    <color name="red">#a90000</color>
+    <color name="black">#000000</color>
+
+</resources>

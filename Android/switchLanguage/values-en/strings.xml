@@ -1,0 +1,42 @@
+<resources>
+    <string name="app_name">Products</string>
+
+    <string name="main_model">Model</string>
+    <string name="main_fix">Maintain</string>
+    <string name="main_set">Setting</string>
+    <string name="maintenance_zero">Zero point detection</string>
+    <string name="maintenance_backzero">Zero return</string>
+    <string name="maintenance_clean">Clean up</string>
+    <string name="sample_back">Return</string>
+    <string name="sample_start">Start printing</string>
+    <string name="sample_view">Preview</string>
+    <string name="sample_info">Details</string>
+    <string name="setting_set">Light setting</string>
+    <string name="show_state">Status shows</string>
+    <string name="show_cancel">Cancel print</string>
+    <string name="setting_lan">Language choice</string>
+    <string name="setting_lanc">中文</string>
+    <string name="setting_lane">English</string>
+    <string name="setting_lanj">日本語</string>
+
+    <string name="dlp_name">name</string>
+    <string name="dlp_path">path</string>
+    <string name="dlp_size">size</string>
+
+    <string name="root_directory">Home directory</string>
+    <string name="sdcard_directory">SD card</string>
+    <string name="connect_status">Link status</string>
+    <string name="screen_size">Exposure screen resolution</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="maintenance_backzero_is">Return zero</string>
+    <string name="set_light">Sets the exposure time</string>
+    <string name="set_light_s">Please enter the exposure time(ms)</string>
+    <string name="reset">Please reset</string>
+    <string name="settting">Is setting...</string>
+
+    <string name="set_zparam">Sets the Z axis parameter</string>
+    <string name="motor_x">Set the release motor parameters (X axis)</string>
+    <string name="motor_y">Sets the scraper motor parameter (Y axis)</string>
+    <string name="light">Sets the exposure light duty cycle (hot bed)</string>
+</resources>

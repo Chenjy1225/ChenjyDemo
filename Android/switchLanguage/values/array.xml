@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+     <string-array name="letter_list">
+        <item>\#</item>
+        <item>A</item>
+        <item>B</item>
+        <item>C</item>
+        <item>D</item>
+        <item>E</item>
+        <item>F</item>
+        <item>G</item>
+        <item>H</item>
+        <item>I</item>
+        <item>J</item>
+        <item>K</item>
+        <item>L</item>
+        <item>M</item>
+        <item>N</item>
+        <item>O</item>
+        <item>P</item>
+        <item>Q</item>
+        <item>R</item>
+        <item>S</item>
+        <item>T</item>
+        <item>U</item>
+        <item>V</item>
+        <item>W</item>
+        <item>X</item>
+        <item>Y</item>
+        <item>Z</item>
+    </string-array>
+
+   <!--platform_adhesion type-->
+   <string-array name="adhesion_type">
+      <item>Skirt</item>
+      <item>Brim</item>
+      <item>Raft</item>
+   </string-array>
+
+   <string-array name="yes_or_no">
+      <item>否</item>
+      <item>是</item>
+   </string-array>
+
+   <string-array name="endStop_position_type">
+      <item>安装在最小</item>
+      <item>安装在最大</item>
+      <item>均安装</item>
+   </string-array>
+
+   <string-array name="endStopPol_type">
+      <item>常低碰高</item>
+      <item>常高碰低</item>
+   </string-array>
+
+   <string-array name="acc_curve">
+      <item>S形曲线</item>
+      <item>梯形曲线</item>
+      <item>无曲线</item>
+   </string-array>
+
+   <string-array name="holdz_type">
+      <item>不锁住Z轴</item>
+      <item>锁住Z轴</item>
+   </string-array>
+
+   <string-array name="temper_control_type">
+   <item>NTC100</item>
+   <item>204GT</item>
+</string-array>
+
+   <string-array name="temper_control_position">
+      <item>T0</item>
+      <item>T1</item>
+      <item>T2</item>
+      <item>TC0</item>
+      <item>TC1</item>
+   </string-array>
+
+   <string-array name="screen_size">
+      <item>480i</item>
+      <item>576i</item>
+      <item>480p</item>
+      <item>576p</item>
+      <item>1280x720p50</item>
+      <item>1280x720p60</item>
+      <item>1920x1080i50</item>
+      <item>1920x1080i60</item>
+      <item>1920x1080p24</item>
+      <item>1920x1080p50</item>
+      <item>1920x1080p60</item>
+      <item>1920x1080p25</item>
+      <item>1920x1080p30</item>
+      <item>1920x1080p24_3d</item>
+      <item>1920x1080p50_3d</item>
+      <item>1920x1080p60_3d</item>
+      <item>1280x720p50_3d</item>
+      <item>1280x720p60_3d</item>
+      <item>3840x2160p30</item>
+      <item>3840x2160p25</item>
+      <item>800x480</item>
+      <item>1024x768</item>
+      <item>1280x1024</item>
+      <item>1360x768</item>
+      <item>1440x900</item>
+      <item>1680x1050</item>
+      <item>2048x1536</item>
+      <item>1280x800</item>
+   </string-array>
+</resources>
